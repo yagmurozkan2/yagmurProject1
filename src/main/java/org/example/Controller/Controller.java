@@ -92,6 +92,7 @@ public class Controller {
 
         api.delete("product/{productID}", context -> {
             long productID = Long.parseLong(context.pathParam("productID"));
+            productService.deleteProduct(productID);
             context.result("Product Deleted!");
             context.status(200);
         });
