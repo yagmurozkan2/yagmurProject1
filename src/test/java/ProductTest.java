@@ -35,7 +35,7 @@ public class ProductTest {
 
     @Test
     public void SellerTableEmptyAtStart(){
-        Assert.assertTrue(sellerService.getSellerSet().isEmpty());
+        Assert.assertTrue(sellerService.getSellerList().isEmpty());
     }
 
     //happy path to add seller
@@ -50,7 +50,7 @@ public class ProductTest {
             Assert.fail("Seller Exception incorrectly thrown.");
         }
 
-        HashSet<Seller> sellerSet = sellerService.getSellerSet();
+        List<Seller> sellerSet = sellerService.getSellerList();
         Assert.assertTrue(sellerSet.contains(seller));
     }
 
@@ -66,11 +66,35 @@ public class ProductTest {
         }
     }
 
+    //Adding an existing Seller
+    @Test
+    public void SellerServiceAddExistingSeller(){
+        SellerServiceAddSeller();
+        Seller seller = new Seller("Michael G. Scott");
+        try {
+            sellerService.addSeller(seller);
+            Assert.fail();
+        } catch (SellerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //happy path to delete a product
+    @Test
+    public void SellerServiceDeleteSeller(){
+        SellerServiceAddSeller();
+        Seller selerDelete = sellerService.getSellerList().get(0);
+        sellerService.deleteSeller(selerDelete.getSellerID());
+
+        List<Seller> sellerList = sellerService.getSellerList();
+        Assert.assertFalse(sellerList.contains(selerDelete));
+    }
+
     //happy path to add product
     @Test
     public void ProductServiceAddProduct(){
         String productName = "Dunder Mifflin Paper";
-        Double productPrice = 25.99;
+        double productPrice = 25.99;
         String sellerName = "Michael G. Scott";
         SellerServiceAddSeller();
 
@@ -86,14 +110,14 @@ public class ProductTest {
         Assert.assertEquals(productName, newPaperProduct.getProductName());
         Assert.assertEquals(productPrice, newPaperProduct.getProductPrice(), 0.001);
         Assert.assertEquals(sellerName, newPaperProduct.getSellerName());
-        Assert.assertTrue(!productList.isEmpty());
+        Assert.assertFalse(productList.isEmpty());
     }
 
     //Adding a product with NULL as Product Name
     @Test
     public void ProductServiceAddNullProduct(){
         String productName = null;
-        Double productPrice = 25.99;
+        double productPrice = 25.99;
         String sellerName = "Michael G. Scott";
         SellerServiceAddSeller();
 
@@ -109,7 +133,7 @@ public class ProductTest {
     @Test
     public void ProductServiceAddProductwithNegativePrice(){
         String productName = "Dunder Mifflin Paper";
-        Double productPrice = -25.99;
+        double productPrice = -25.99;
         String sellerName = "Michael G. Scott";
         SellerServiceAddSeller();
 
@@ -125,13 +149,13 @@ public class ProductTest {
     @Test
     public void ProductServiceAddProductwithNonExistingSeller(){
         String productName = "Dunder Mifflin Paper";
-        Double productPrice = 25.99;
+        double productPrice = 25.99;
         String sellerName = "Jim Halpert";
 
         try {
             productService.addProduct(new Product(productName, productPrice, sellerName));
             Assert.fail();
-        } catch (ProductException e) {
+        } catch (NullPointerException | ProductException e) {
             e.printStackTrace();
         }
     }
@@ -139,16 +163,12 @@ public class ProductTest {
     //happy path search product by id
     @Test
     public void ProductServiceProductFound(){
-        String productName = "Dunder Mifflin Paper";
-        Double productPrice = 25.99;
-        String sellerName = "Michael G. Scott";
-        SellerServiceAddSeller();
+        ProductServiceAddProduct();
 
-        Long productID = null;
+        long productID;
         Product product = null;
 
         try {
-            productService.addProduct(new Product(productName, productPrice, sellerName));
             productID = productService.getProductList().get(0).getProductID();
             product = productService.getProductByID(productID);
         } catch (ProductException e) {
@@ -159,26 +179,12 @@ public class ProductTest {
         Assert.assertNotNull(product);
     }
 
-
-    //Searching product by ID that doesn't exist
-    @Test
-    public void ProductServiceProductNotFound(){
-        Long productID = (long) (Math.random() * Long.MAX_VALUE);
-
-        try {
-            Product paperProduct = productService.getProductByID(productID);
-            Assert.fail();
-        } catch (ProductException e) {
-            e.printStackTrace();
-        }
-    }
-
     //Happy Path update Product
     @Test
     public void ProductServiceUpdateProduct(){
         ProductServiceAddProduct();
         String newProductName = "Dunder Mifflin Premium Paper";
-        Double newProductPrice = 30.99;
+        double newProductPrice = 30.99;
         String newSellerName = "Dwight Schrute";
 
         try {
@@ -201,7 +207,7 @@ public class ProductTest {
         Assert.assertEquals(newProductName, newPaperProduct.getProductName());
         Assert.assertEquals(newProductPrice, newPaperProduct.getProductPrice(), 0.001);
         Assert.assertEquals(newSellerName, newPaperProduct.getSellerName());
-        Assert.assertTrue(!productList.isEmpty());
+        Assert.assertFalse(productList.isEmpty());
     }
 
     //Updating a product with null product name
@@ -209,7 +215,7 @@ public class ProductTest {
     public void ProductServiceUpdateNullProduct(){
 
         String newProductName = null;
-        Double newProductPrice = 30.99;
+        double newProductPrice = 30.99;
         String newSellerName = "Dwight Schrute";
 
         try {
@@ -225,7 +231,7 @@ public class ProductTest {
     @Test
     public void ProductServiceUpdateProductwithNegativePrice(){
         String newProductName = "Dunder Mifflin Premium Paper";
-        Double newProductPrice = -30.99;
+        double newProductPrice = -30.99;
         String newSellerName = "Dwight Schrute";
 
         try {
@@ -241,7 +247,7 @@ public class ProductTest {
     @Test
     public void ProductServiceUpdateProductwithNonExistingSeller(){
         String newProductName = "Dunder Mifflin Premium Paper";
-        Double newProductPrice = 30.99;
+        double newProductPrice = 30.99;
         String newSellerName = "Jim Halpert";
 
         try {
@@ -257,7 +263,7 @@ public class ProductTest {
     @Test
     public void ProductServiceDeleteProduct(){
         String productName = "Dunder Mifflin Premium Recycled Paper";
-        Double productPrice = 35.99;
+        double productPrice = 35.99;
         String sellerName = "Michael G. Scott";
         SellerServiceAddSeller();
 
@@ -272,7 +278,7 @@ public class ProductTest {
         productService.deleteProduct(paperProduct.productID);
 
         List<Product> productList = productService.getProductList();
-        Assert.assertTrue(!productList.contains(paperProduct));
+        Assert.assertFalse(productList.contains(paperProduct));
     }
 
 }

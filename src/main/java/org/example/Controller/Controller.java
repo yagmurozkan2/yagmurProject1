@@ -23,7 +23,7 @@ public class Controller {
         api.get("health", context -> {context.result("Server is UP!");});
 
         api.get("seller", context -> {
-            HashSet<Seller> sellerList = sellerService.getSellerSet();
+            List<Seller> sellerList = sellerService.getSellerList();
             context.json(sellerList);
         });
 
@@ -33,9 +33,17 @@ public class Controller {
                 Seller s = om.readValue(context.body(), Seller.class);
                 sellerService.addSeller(s);
                 context.status(201);
+                context.json(s);
             } catch(JsonProcessingException e){
                 context.status(400);
             }
+        });
+
+        api.delete("seller/{sellerID}", context -> {
+            long sellerID = Long.parseLong(context.pathParam("sellerID"));
+            sellerService.deleteSeller(sellerID);
+            context.result("Seller Deleted!");
+            context.status(200);
         });
 
         api.get("product", context -> {
@@ -100,3 +108,4 @@ public class Controller {
         return api;
     }
 }
+

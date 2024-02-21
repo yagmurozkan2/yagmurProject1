@@ -18,13 +18,14 @@ public class ProductDAO {
 
     public void insertProduct(Product product){
         try{
-            PreparedStatement ps = conn.prepareStatement("insert into product (productID, productName, productPrice, sellerName) " +
+            PreparedStatement ps2 = conn.prepareStatement("insert into product (productID, productName, productPrice, sellerID) " +
                     "values (?, ?, ?, ?)");
-            ps.setLong(1, product.getProductID());
-            ps.setString(2, product.getProductName());
-            ps.setDouble(3, product.getProductPrice());
-            ps.setString(4, product.getSellerName());
-            ps.executeUpdate();
+
+            ps2.setLong(1, product.getProductID());
+            ps2.setString(2, product.getProductName());
+            ps2.setDouble(3, product.getProductPrice());
+            ps2.setLong(4, product.getSellerID());
+            ps2.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -33,14 +34,15 @@ public class ProductDAO {
     public List<Product> getAllProducts() {
         List<Product> productList = new ArrayList<>();
         try {
-            PreparedStatement ps = conn.prepareStatement("select * from product");
+            PreparedStatement ps = conn.prepareStatement("select p.*, s.sellerName from product p join seller s on p.sellerID = s.sellerID");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 long productID = rs.getLong("productID");
                 String productName = rs.getString("productName");
-                Double productPrice = rs.getDouble("productPrice");
+                double productPrice = rs.getDouble("productPrice");
+                long sellerID = rs.getLong("sellerID");
                 String sellerName = rs.getString("sellerName");
-                Product p = new Product(productID, productName, productPrice, sellerName);
+                Product p = new Product(productID, productName, productPrice, sellerID, sellerName);
                 productList.add(p);
             }
         } catch (SQLException e) {
@@ -52,13 +54,14 @@ public class ProductDAO {
     public Product getProductByID(long productID){
         Product product = null;
         try {
-            PreparedStatement ps = conn.prepareStatement("select * from product where productID = " + productID);
+            PreparedStatement ps = conn.prepareStatement("select p.*, s.sellerName from product p join seller s on p.sellerID = s.sellerID where productID = " + productID);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String productName = rs.getString("productName");
-                Double productPrice = rs.getDouble("productPrice");
+                double productPrice = rs.getDouble("productPrice");
+                long sellerID = rs.getLong("sellerID");
                 String sellerName = rs.getString("sellerName");
-                product = new Product(productID, productName, productPrice, sellerName);
+                product = new Product(productID, productName, productPrice, sellerID, sellerName);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,13 +72,14 @@ public class ProductDAO {
     public Product getProductByName(String productName) {
         Product product = null;
         try{
-            PreparedStatement ps = conn.prepareStatement("select * from product where productName = '" + productName + "'");
+            PreparedStatement ps = conn.prepareStatement("select p.*, s.sellerName from product p join seller s on p.sellerID = s.sellerID where productName = '" + productName + "'");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Long productID = rs.getLong("productID");
-                Double productPrice = rs.getDouble("productPrice");
+                long productID = rs.getLong("productID");
+                double productPrice = rs.getDouble("productPrice");
+                long sellerID = rs.getLong("sellerID");
                 String sellerName = rs.getString("sellerName");
-                product = new Product(productID, productName, productPrice, sellerName);
+                product = new Product(productID, productName, productPrice, sellerID, sellerName);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -86,11 +90,11 @@ public class ProductDAO {
     public Product updateProduct(Product oldProduct, Product newProduct){
         try{
             PreparedStatement ps = conn.prepareStatement("update product " +
-                    "set productName = ?, productPrice = ?, sellerName = ? " +
+                    "set productName = ?, productPrice = ?, sellerID = ?" +
                     "where productID = " + oldProduct.getProductID());
             ps.setString(1, newProduct.getProductName());
             ps.setDouble(2, newProduct.getProductPrice());
-            ps.setString(3, newProduct.getSellerName());
+            ps.setLong(3, newProduct.getSellerID());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,7 +102,7 @@ public class ProductDAO {
         return newProduct;
     }
 
-    public void deleteProduct(Long productID){
+    public void deleteProduct(long productID){
         try{
             PreparedStatement ps = conn.prepareStatement("delete from product " +
                     "where productID = " + productID);

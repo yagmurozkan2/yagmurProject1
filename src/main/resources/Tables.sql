@@ -1,10 +1,13 @@
-drop table product;
-drop table seller;
+drop table if exists product;
+drop table if exists seller;
+
+create table seller (
+    sellerID bigint primary key,
+    sellerName varchar(355) not null unique
+);
 create table product (
     productID bigint primary key,
-    productName varchar(355),
+    productName varchar(355) not null,
     productPrice float,
-    sellerName varchar(355));
-create table seller (
-    sellerName varchar(355) not null
-    );
+    sellerID bigint references seller(sellerID)
+);

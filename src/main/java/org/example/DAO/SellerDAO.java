@@ -14,42 +14,72 @@ public class SellerDAO {
     public SellerDAO(Connection conn) {
         this.conn = conn;
     }
+
     public void insertSeller(Seller seller){
         try{
-            PreparedStatement ps = conn.prepareStatement("insert into seller (sellerName) values (?)");
-            ps.setString(1, seller.getSellerName());
+            PreparedStatement ps = conn.prepareStatement("insert into seller (sellerID, sellerName) values (?, ?)");
+            ps.setLong(1, seller.getSellerID());
+            ps.setString(2, seller.getSellerName());
             ps.executeUpdate();
         }catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public HashSet<Seller> getAllSellers() {
-        HashSet<Seller> sellerHashSet = new HashSet<>();
+    public List<Seller> getAllSellers() {
+        List<Seller> sellerList = new ArrayList<>();
         try {
             PreparedStatement ps = conn.prepareStatement("select * from seller");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
+                long sellerID = rs.getLong("sellerID");
                 String sellerName = rs.getString("sellerName");
-                Seller s = new Seller(sellerName);
-                sellerHashSet.add(s);
+                Seller s = new Seller(sellerID, sellerName);
+                sellerList.add(s);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return sellerHashSet;
+        return sellerList;
     }
 
-    public String searchSeller(String sellerName){
+    public List<String> getSellerNames() {
+        List<String> sellerList = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("select sellerName from seller");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String sellerName = rs.getString("sellerName");
+                sellerList.add(sellerName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sellerList;
+    }
+
+    public Seller searchSeller(String sellerName){
+        Seller sellerfound = new Seller();
         try {
             PreparedStatement ps = conn.prepareStatement("select * from seller where sellerName = '" + sellerName + "'");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                return rs.getString("sellerName");
+                sellerfound.setSellerID(rs.getLong("sellerID"));
+                sellerfound.setSellerName(rs.getString("sellerName"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "";
+        return sellerfound;
+    }
+
+    public void deleteSeller(long sellerID) {
+        try{
+            PreparedStatement ps = conn.prepareStatement("delete from seller " +
+                    "where sellerID = " + sellerID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

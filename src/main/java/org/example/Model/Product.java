@@ -6,6 +6,7 @@ public class Product {
     public long productID;
     public String productName;
     public double productPrice;
+    public long sellerID;
     public String sellerName;
 
     public Product() {}
@@ -22,6 +23,15 @@ public class Product {
         this.productPrice = productPrice;
         this.sellerName = sellerName;
     }
+
+    public Product(long productID, String productName, double productPrice, long sellerID, String sellerName) {
+        this.productID = productID;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.sellerID = sellerID;
+        this.sellerName = sellerName;
+    }
+
 
     public long getProductID() {
         return productID;
@@ -53,6 +63,14 @@ public class Product {
 
     public void setProductPrice(double productPrice) {
         this.productPrice = productPrice;
+    }
+
+    public long getSellerID() {
+        return sellerID;
+    }
+
+    public void setSellerID(long sellerID) {
+        this.sellerID = sellerID;
     }
 
     @Override
