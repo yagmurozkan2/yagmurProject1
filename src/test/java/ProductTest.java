@@ -79,7 +79,7 @@ public class ProductTest {
         }
     }
 
-    //happy path to delete a product
+    //happy path to delete a seller
     @Test
     public void SellerServiceDeleteSeller(){
         SellerServiceAddSeller();
