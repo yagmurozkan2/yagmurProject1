@@ -2,6 +2,7 @@ package org.example.Service;
 
 import org.example.DAO.ProductDAO;
 import org.example.Exception.ProductException;
+import org.example.Exception.SellerException;
 import org.example.Model.*;
 import org.example.Main;
 
@@ -26,24 +27,43 @@ public class ProductService {
         return productDAO.getProductByID(productID);
     }
 
-    public Product getProductByName(String productName){
+    public List<Product> getProductByName(String productName){
         Main.log.info("Attempting to get a Product by its Name.");
         return productDAO.getProductByName(productName);
     }
 
+    public List<Product> getProductBySeller(String sellerName){
+        Main.log.info("Attempting to get a Product by its Seller Name.");
+        return productDAO.getProductBySeller(sellerName);
+    }
+
+    public List<Product> getProductByNameAndSeller(String productName, String sellerName) {
+        Main.log.info("Attempting to get a Product by its Product and Seller Name.");
+        return productDAO.getProductByNameAndSeller(productName, sellerName);
+    }
+
+    public List<Product> getProductNamePriceSeller(){
+        Main.log.info("Attempting to get a Product Name, Price and Seller Name.");
+        return productDAO.getProductNamePriceSeller();
+    }
+
     public void addProduct(Product p) throws ProductException{
         Main.log.info("Attempting to add a Product");
-        if(p.getProductName() == null || p.getSellerName() == null){
+        if(p.getProductName() == null || p.getSellerName() == null) {
             Main.log.warn("ProductException: Throwing null entry exception for Product Name or Seller Name.");
             throw new ProductException("Product Name and Seller Name cannot be null!");
         }
-        else if (p.getProductPrice() < 0){
+        else if (p.getProductPrice() <= 0) {
             Main.log.warn("ProductException: Throwing negative value exception for Product Price.");
             throw new ProductException("Product Price cannot be lower than 0!");
         }
         else if (sellerService.sellerDAO.searchSeller(p.getSellerName()).getSellerName() == null){
             Main.log.warn("NullPointerException: Throwing Seller Not Found exception.");
             throw new NullPointerException("Seller Name does not exits!");
+        }
+        else if (getProductNamePriceSeller().contains(p)) {
+            Main.log.warn("ProductException: Product already exists");
+            throw new ProductException("Product already exists!");
         }
         long productID = (long) (Math.random() * Long.MAX_VALUE);
         p.setProductID(productID);

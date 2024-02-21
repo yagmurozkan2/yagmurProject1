@@ -51,6 +51,24 @@ public class ProductDAO {
         return productList;
     }
 
+    public List<Product> getProductNamePriceSeller() {
+        List<Product> productList = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("select p.productName, p.productPrice, s.sellerName from product p join seller s on p.sellerID = s.sellerID");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String productName = rs.getString("productName");
+                double productPrice = rs.getDouble("productPrice");
+                String sellerName = rs.getString("sellerName");
+                Product p = new Product(productName, productPrice, sellerName);
+                productList.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return productList;
+    }
+
     public Product getProductByID(long productID){
         Product product = null;
         try {
@@ -69,22 +87,74 @@ public class ProductDAO {
         return product;
     };
 
-    public Product getProductByName(String productName) {
-        Product product = null;
+    public List<Product> getProductByName(String productName) {
+        List<Product> productList = new ArrayList<>();
         try{
-            PreparedStatement ps = conn.prepareStatement("select p.*, s.sellerName from product p join seller s on p.sellerID = s.sellerID where productName = '" + productName + "'");
+            PreparedStatement ps = conn.prepareStatement(
+                    "select p.*, s.sellerName " +
+                        "from product p " +
+                        "join seller s " +
+                            "on p.sellerID = s.sellerID " +
+                        "where lower(productName) = '" + productName.toLowerCase() + "'");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 long productID = rs.getLong("productID");
                 double productPrice = rs.getDouble("productPrice");
                 long sellerID = rs.getLong("sellerID");
                 String sellerName = rs.getString("sellerName");
-                product = new Product(productID, productName, productPrice, sellerID, sellerName);
+                productList.add(new Product(productID, productName, productPrice, sellerID, sellerName));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return product;
+        return productList;
+    }
+
+    public List<Product> getProductBySeller(String sellerName){
+        List<Product> productList = new ArrayList<>();
+        try{
+            PreparedStatement ps = conn.prepareStatement(
+                    "select p.*, s.sellerName " +
+                         "from product p " +
+                         "join seller s " +
+                            "on p.sellerID = s.sellerID " +
+                         "where lower(sellerName) = '" + sellerName.toLowerCase() + "'");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                long productID = rs.getLong("productID");
+                String productName = rs.getString("productName");
+                double productPrice = rs.getDouble("productPrice");
+                long sellerID = rs.getLong("sellerID");
+                productList.add(new Product(productID, productName, productPrice, sellerID, sellerName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return productList;
+    }
+
+    public List<Product> getProductByNameAndSeller(String productName, String sellerName) {
+        List<Product> productList = new ArrayList<>();
+        try{
+            PreparedStatement ps = conn.prepareStatement(
+                    "select p.*, s.sellerName " +
+                        "from product p " +
+                        "join seller s " +
+                            "on p.sellerID = s.sellerID " +
+                        "where lower(productName) = '" + productName.toLowerCase() + "' " +
+                            "and lower(sellerName) = '" + sellerName.toLowerCase() + "'");
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                long productID = rs.getLong("productID");
+                double productPrice = rs.getDouble("productPrice");
+                long sellerID = rs.getLong("sellerID");
+                productList.add(new Product(productID, productName, productPrice, sellerID, sellerName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return productList;
     }
 
     public Product updateProduct(Product oldProduct, Product newProduct){

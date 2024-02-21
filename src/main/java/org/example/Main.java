@@ -3,6 +3,10 @@ package org.example;
 import org.example.Controller.Controller;
 import org.example.DAO.ProductDAO;
 import org.example.DAO.SellerDAO;
+import org.example.Exception.ProductException;
+import org.example.Exception.SellerException;
+import org.example.Model.Product;
+import org.example.Model.Seller;
 import org.example.Service.ProductService;
 import org.example.Service.SellerService;
 import org.example.Util.ConnectionSingleton;
@@ -31,8 +35,23 @@ public class Main {
 
         Controller controller = new Controller(sellerService, productService);
 
+        try{
+            sellerService.addSeller(new Seller("seller1"));
+            sellerService.addSeller(new Seller("seller2"));
+            sellerService.addSeller(new Seller("seller3"));
+
+            productService.addProduct(new Product("product1", 10.99, "seller1"));
+            productService.addProduct(new Product("product2", 13.99, "seller1"));
+            productService.addProduct(new Product("product2", 14.99, "seller1"));
+            productService.addProduct(new Product("product1", 14.99, "seller2"));
+        } catch (SellerException | ProductException e) {
+            throw new RuntimeException(e);
+        }
+
         Javalin api = controller.getAPI();
         api.start(9008);
+
+
 
     }
 }

@@ -47,7 +47,22 @@ public class Controller {
         });
 
         api.get("product", context -> {
-            List<Product> productList = productService.getProductList();
+            String nameFilter = context.queryParam("nameFilter");
+            String sellerFilter = context.queryParam("sellerFilter");
+            List<Product> productList = new ArrayList<>();
+            if (nameFilter != null && sellerFilter == null) {
+                productList = productService.getProductByName(nameFilter);
+            }
+            else if (sellerFilter != null && nameFilter == null) {
+                productList = productService.getProductBySeller(sellerFilter);
+            }
+            else if (nameFilter != null && sellerFilter != null) {
+                productList = productService.getProductByNameAndSeller(nameFilter, sellerFilter);
+            }
+            else {
+                productList = productService.getProductList();
+
+            }
             context.json(productList);
         });
 
