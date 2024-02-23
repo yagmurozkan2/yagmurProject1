@@ -112,6 +112,7 @@ public class ProductDAO {
 
     public List<Product> getProductBySeller(String sellerName){
         List<Product> productList = new ArrayList<>();
+
         try{
             PreparedStatement ps = conn.prepareStatement(
                     "select p.*, s.sellerName " +

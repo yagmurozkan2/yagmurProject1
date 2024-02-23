@@ -77,7 +77,6 @@ public class Controller {
                 context.json(p);
                 context.status(200);
             }
-
         });
 
         api.post("product", context -> {
